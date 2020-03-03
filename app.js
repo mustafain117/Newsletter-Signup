@@ -10,6 +10,12 @@ app.get('/', function(req,res){
     res.sendFile(__dirname + '/signup.html')
 })
 
+app.post('/', function(req,res){
+    console.log(req.body.firstName)
+    console.log(req.body.lastName)
+    console.log(req.body.email)
+    res.send("<h1>Thanks for signing up</h1>")
+})
 
 
 
