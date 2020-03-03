@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 const request = require('request')
+const https = require('https')
 
 const app = express();
 app.use(express.static("public"))
@@ -11,12 +12,46 @@ app.get('/', function(req,res){
 })
 
 app.post('/', function(req,res){
-    console.log(req.body.firstName)
-    console.log(req.body.lastName)
-    console.log(req.body.email)
-    res.send("<h1>Thanks for signing up</h1>")
+    var fName = req.body.firstName;
+    var lName = req.body.lastName;
+    var email = req.body.email;
+    
+    var subData = {
+        members: [
+            {
+                email_address : email,
+                status : "subscribed",
+                merge_fields: {
+                    FNAME : fName,
+                    LNAME : lName
+                }
+            }
+        ]
+    }
+    var jsonData = JSON.stringify(subData);
+    const listId = "71d4f98fec"
+    var url = `https://us19.api.mailchimp.com/3.0/lists/${listId}`
+    
+    const options = {
+        method : "POST",
+        auth: "anystring:7a08f1c764f9b1484f9de808f9eae258-us19"
+    }
+
+    const request = https.request(url, options, function(response){
+        if(response.statusCode === 200){
+            res.sendFile(__dirname + '/success.html');
+        }else{
+            res.sendFile(__dirname + '/failure.html');
+        }
+    });
+
+    request.write(jsonData);
+    request.end();
 })
 
+app.post('/failure', function(req,res){
+    res.redirect('/');
+})
 
 
 
@@ -24,3 +59,9 @@ app.listen('3000', function(req,res){
     console.log("Server started on port 3000");
 })
  
+
+//Api key
+//7a08f1c764f9b1484f9de808f9eae258-us19
+
+//id for audience
+//71d4f98fec
